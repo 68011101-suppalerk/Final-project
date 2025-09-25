@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
-
 #define FILENAME "bookinglist.csv"
 
 struct Booking {
@@ -12,17 +11,16 @@ struct Booking {
     char roomType[30];
 };
 
-// ฟังก์ชันเพิ่มข้อมูล
+// ฟังก์ชันเพิ่มข้อมูลการของ
 void addBooking() {
     struct Booking b;
     FILE *fp = fopen(FILENAME, "a");
-
     if (fp == NULL) {
         printf("ไม่สามารถเปิดไฟล์ได้\n");
         return;
     }
 
-    printf("กรอกชื่อ: ");
+    printf("กรอกชื่อผู้จอง: ");
     scanf(" %[^\n]", b.name);
     printf("วันที่ Check-in (yyyy-mm-dd): ");
     scanf(" %[^\n]", b.checkIn);
@@ -32,13 +30,12 @@ void addBooking() {
     scanf(" %[^\n]", b.roomType);
 
     fprintf(fp, "%s,%s,%s,%s\n", b.name, b.checkIn, b.checkOut, b.roomType);
-    fflush(fp);
     fclose(fp);
     printf("บันทึกข้อมูลเสร็จสิ้น!\n");
 }
 
 
-// เมนู
+// เมนูการจอง
 void menu() {
     int choice;
     while (1) {
@@ -79,3 +76,4 @@ int main() {
     menu();
     return 0;
 }
+
