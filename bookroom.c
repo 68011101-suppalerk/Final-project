@@ -1,79 +1,107 @@
 ﻿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <locale.h>
+
 #define FILENAME "bookinglist.csv"
 
 struct Booking {
-    char name[200];
-    char checkIn[50];
-    char checkOut[50];
-    char roomType[30];
+    char name[50];
+    char checkIn[20];
+    char checkOut[20];
+    char roomType[20];
 };
 
-// ฟังก์ชันเพิ่มข้อมูลการของ
+// ฟังก์ชันตรวจสอบปีที่มี366วัน
+int isLeapYear(int year) {
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+
+// ฟังก์ชันตรวจสอบวันในเดือน
+int isValidDate(int d, int m, int y) {
+    if (y < 1900 || y > 2100) return 0; // กันปีผิดปกติ
+    if (m < 1 || m > 12) return 0;
+    if (d < 1) return 0;
+
+    int daysInMonth[] = {0,31,28,31,30,31,30,31,31,30,31,30,31};
+    if (m == 2 && isLeapYear(y)) daysInMonth[2] = 29;
+
+    return d <= daysInMonth[m];
+}
+
+// ฟังก์ชันรับวัน เดือน ปี ทีละค่า
+void inputDate(char *output) {
+    int d, m, y;
+    do {
+        printf("Enter Day: ");
+        scanf("%d", &d);
+        printf("Enter Month: ");
+        scanf("%d", &m);
+        printf("Enter Year: ");
+        scanf("%d", &y);
+
+        if (!isValidDate(d, m, y)) {
+            printf(" Invalid date, please try again!\n");
+        } else {
+            break;
+        }
+    } while (1);
+
+    sprintf(output, "%04d-%02d-%02d", y, m, d);
+}
+
+// ฟังก์ชันเพิ่มข้อมูล
 void addBooking() {
     struct Booking b;
-    FILE *fp = fopen(FILENAME, "a");
+    FILE *fp = fopen(FILENAME, "a"); // append
+
     if (fp == NULL) {
-        printf("ไม่สามารถเปิดไฟล์ได้\n");
+        printf("Cannot open file!\n");
         return;
     }
 
-    printf("กรอกชื่อผู้จอง: ");
+    printf("Enter Name: ");
     scanf(" %[^\n]", b.name);
-    printf("วันที่ Check-in (yyyy-mm-dd): ");
-    scanf(" %[^\n]", b.checkIn);
-    printf("วันที่ Check-out (yyyy-mm-dd): ");
-    scanf(" %[^\n]", b.checkOut);
-    printf("ประเภทห้อง: ");
+
+    printf("\n--- Enter Check-in Date ---\n");
+    inputDate(b.checkIn);
+
+    printf("\n--- Enter Check-out Date ---\n");
+    inputDate(b.checkOut);
+
+    printf("Enter Room Type: ");
     scanf(" %[^\n]", b.roomType);
 
     fprintf(fp, "%s,%s,%s,%s\n", b.name, b.checkIn, b.checkOut, b.roomType);
     fclose(fp);
-    printf("บันทึกข้อมูลเสร็จสิ้น!\n");
+
+    printf("✅ Booking added successfully!\n");
 }
 
-
-// เมนูการจอง
+// Menu
 void menu() {
     int choice;
     while (1) {
-        printf("--- กรุณาเลือกเมนูการเข้าจองห้องพัก ---\n");
-        printf("1. เพิ่มข้อมูลการจอง\n");
-        printf("2. แสดงข้อมูลทั้งหมด\n");
-        printf("3. ค้นหาข้อมูลการจอง\n");
-        printf("4. ลบข้อมูลการจอง\n");
-        printf("5. ออกจากโปรแกรม\n");
-        printf("เลือก: ");
+        printf("\n--- Hotel Booking System ---\n");
+        printf("1. Add Booking\n");
+        printf("2. Show All Bookings\n");
+        printf("3. Search Booking\n");
+        printf("4. Delete Booking\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
         scanf("%d", &choice);
 
         switch (choice) {
-            case 1:
-                addBooking();
-                break;
-            case 2:
-                //readBookings();
-                break;
-            case 3:
-                //searchBooking();
-                break;
-            case 4:
-                //deleteBooking();
-                break;
-            case 5:
-                exit(0);
-                break;
-            default:
-                printf("เลือกไม่ถูกต้อง!\n");
-                break;
+            case 1: addBooking(); break;
+            case 2: readBookings(); break;
+            case 3: searchBooking(); break;
+            case 4: deleteBooking(); break;
+            case 5: exit(0);
+            default: printf("Invalid choice!\n");
         }
     }
 }
 
 int main() {
-    setlocale(LC_ALL, "th_TH.UTF-8");
     menu();
     return 0;
 }
-
